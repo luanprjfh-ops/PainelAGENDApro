@@ -249,6 +249,12 @@
     const SUPABASE_KEY = "sb_publishable_tn76OaKxjctgngA6jj9NSw_KXfWqt-f";
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Aviso de configuração: use a ANON public key (JWT) em apps de front-end.
+    const __keyLooksWrong = String(SUPABASE_KEY || "").startsWith("sb_");
+    if (__keyLooksWrong) {
+      console.warn("SUPABASE_KEY parece ser uma chave do tipo sb_* (não é a anon public key JWT). Se tiver erro 400/401, troque pela anon public key em Project Settings > API.");
+    }
+
 
     // UI refs
     const loginCard = document.getElementById("loginCard");
@@ -258,6 +264,11 @@
     const emailEl = document.getElementById("email");
     const passEl = document.getElementById("password");
     const loginMsg = document.getElementById("loginMsg");
+
+    // Mostra aviso na tela se a chave não for anon public key
+    if (__keyLooksWrong) {
+      // setMsg ainda não existe aqui; faremos isso depois, no init()
+    }
 
     const sessionInfo = document.getElementById("sessionInfo");
     const btnLogout = document.getElementById("btnLogout");
@@ -494,6 +505,9 @@
 
     // boot
     (async function init() {
+      if (__keyLooksWrong) {
+        setMsg(loginMsg, "Configuração: troque SUPABASE_KEY pela anon public key (JWT) do Supabase para evitar erro 400/401.", "bad");
+      }
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         await showLoggedIn(data.session);
