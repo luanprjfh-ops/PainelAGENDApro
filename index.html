@@ -224,7 +224,7 @@
                 <th>Nome</th>
                 <th>ID</th>
                 <th>Status</th>
-                <th>Atualizado</th>
+                <th>Criado</th>
                 <th style="text-align:right;">Ação</th>
               </tr>
             </thead>
@@ -319,8 +319,8 @@
 
       const { data, error } = await supabase
         .from("companies")
-        .select("id, name, status, updated_at, created_at")
-        .order("created_at", { ascending: false });
+        .select("id, name, status")
+        .order("name", { ascending: true });
 
       if (error) {
         setMsg(dashMsg, `Erro ao carregar companies: ${error.message}`, "bad");
@@ -368,7 +368,7 @@
         const id = c.id;
         const name = escapeHtml(c.name);
         const status = (c.status || "").toLowerCase();
-        const updated = c.updated_at || c.created_at;
+        const updated = c.created_at || null;
 
         const nextStatus = status === "active" ? "inactive" : "active";
         const btnText = status === "active" ? "Desativar" : "Ativar";
@@ -418,7 +418,7 @@
 
         allCompanies = allCompanies.map((c) =>
           c.id === companyId
-            ? { ...c, status: nextStatus, updated_at: new Date().toISOString() }
+            ? { ...c, status: nextStatus }
             : c
         );
 
