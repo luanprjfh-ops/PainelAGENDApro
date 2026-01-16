@@ -224,7 +224,6 @@
                 <th>Nome</th>
                 <th>ID</th>
                 <th>Status</th>
-                <th>Criado</th>
                 <th style="text-align:right;">Ação</th>
               </tr>
             </thead>
@@ -358,7 +357,7 @@
       if (!rows.length) {
         companiesTbody.innerHTML = `
           <tr>
-            <td colspan="5" class="empty">Nenhuma empresa encontrada.</td>
+            <td colspan="4" class="empty">Nenhuma empresa encontrada.</td>
           </tr>
         `;
         return;
@@ -367,10 +366,7 @@
       companiesTbody.innerHTML = rows.map((c) => {
         const id = c.id;
         const name = escapeHtml(c.name);
-        const status = (c.status || "").toLowerCase();
-        const updated = c.created_at || null;
-
-        const nextStatus = status === "active" ? "inactive" : "active";
+        const status = (c.status || "").toLowerCase();        const nextStatus = status === "active" ? "inactive" : "active";
         const btnText = status === "active" ? "Desativar" : "Ativar";
         const btnClass = status === "active" ? "btn-danger" : "btn-success";
 
@@ -378,9 +374,7 @@
           <tr>
             <td>${name}</td>
             <td class="td-mono">${escapeHtml(id)}</td>
-            <td>${statusPill(status)}</td>
-            <td class="td-mono">${escapeHtml(fmtDate(updated))}</td>
-            <td style="text-align:right;">
+            <td>${statusPill(status)}</td>            <td style="text-align:right;">
               <div class="row-actions">
                 <button
                   class="btn ${btnClass}"
