@@ -302,15 +302,11 @@
       return `<span class="pill pill-warn">${escapeHtml(status ?? "-")}</span>`;
     }
 
-    async function requireAdmin(userId) {
-      const { data, error } = await supabase
-        .from("admin_users")
-        .select("user_id, active")
-        .eq("user_id", userId)
-        .maybeSingle();
-
+    async function requireAdmin() {
+      // Usa RPC is_admin() (evita SELECT em admin_users e evita erro de recursao/RLS)
+      const { data, error } = await supabase.rpc('is_admin');
       if (error) throw error;
-      return !!(data && data.active === true);
+      return data === true;
     }
 
     async function loadCompanies() {
@@ -435,7 +431,7 @@
       sessionInfo.textContent = `Logado: ${user.email}`;
 
       try {
-        isAdmin = await requireAdmin(user.id);
+        isAdmin = await requireAdmin();
         if (!isAdmin) {
           setMsg(dashMsg, "Acesso negado: este usuário não está cadastrado como admin (admin_users).", "bad");
         } else {
