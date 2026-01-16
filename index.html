@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Painel Admin - Empresas</title>
+  <style>
+    :root{
+      --bg:#0b0e14;
+      --card:#121828;
+      --muted:#8ea0c2;
+      --text:#eaf0ff;
+      --line:#23304d;
+      --accent:#4f7cff;
+      --danger:#ff4f6d;
+      --ok:#34d399;
+      --warn:#fbbf24;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 500px at 20% 0%, rgba(79,124,255,.25), transparent 60%),
+                  radial-gradient(900px 400px at 80% 10%, rgba(255,79,109,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    code{background:rgba(255,255,255,.06); padding:.15rem .35rem; border-radius:.4rem}
+    .hidden{display:none !important}
+
+    .app{max-width:1100px; margin:0 auto; padding:28px 16px 48px}
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px; border:1px solid var(--line);
+      background:rgba(18,24,40,.7);
+      backdrop-filter: blur(10px);
+      border-radius:16px;
+      margin-bottom:18px;
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      display:grid; place-items:center;
+      border:1px solid var(--line);
+      background:rgba(79,124,255,.12);
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+    .titles h1{margin:0;font-size:18px}
+    .titles p{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .session-info{color:var(--muted); font-size:13px}
+
+    .card{
+      border:1px solid var(--line);
+      background:rgba(18,24,40,.7);
+      backdrop-filter: blur(10px);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+    .btn-primary{background:rgba(79,124,255,.25); border-color:rgba(79,124,255,.55)}
+    .btn-secondary{background:rgba(255,255,255,.08)}
+    .btn-ghost{background:transparent}
+    .btn-danger{background:rgba(255,79,109,.18); border-color:rgba(255,79,109,.5)}
+    .btn-success{background:rgba(52,211,153,.16); border-color:rgba(52,211,153,.5)}
+
+    .form{display:grid; gap:12px; margin-top:10px}
+    label span{display:block; color:var(--muted); font-size:13px; margin-bottom:6px}
+    input, .input, .select{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+    }
+    input:focus, .input:focus, .select:focus{border-color:rgba(79,124,255,.7)}
+
+    .toolbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      margin-bottom:12px;
+      flex-wrap: wrap;
+    }
+    .toolbar-left{display:flex; gap:10px; align-items:center}
+    .toolbar-right{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .badge{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      padding:2px 10px;
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .table-wrap{overflow:auto; border:1px solid var(--line); border-radius:14px}
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:900px;
+    }
+    thead th{
+      text-align:left;
+      font-size:12px;
+      color:var(--muted);
+      padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      background:rgba(0,0,0,.12);
+      position:sticky;
+      top:0;
+    }
+    tbody td{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(35,48,77,.55);
+      vertical-align:middle;
+    }
+    tbody tr:hover{background:rgba(255,255,255,.03)}
+    .td-mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px; color:rgba(234,240,255,.85)
+    }
+    .empty{color:var(--muted); padding:18px 12px}
+
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:3px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      font-size:12px;
+      text-transform: lowercase;
+    }
+    .pill-ok{border-color:rgba(52,211,153,.5); background:rgba(52,211,153,.10)}
+    .pill-bad{border-color:rgba(255,79,109,.55); background:rgba(255,79,109,.10)}
+    .pill-warn{border-color:rgba(251,191,36,.55); background:rgba(251,191,36,.10)}
+
+    .msg{margin-top:10px; font-size:13px; color:var(--muted)}
+    .msg-ok{color:rgba(52,211,153,.95)}
+    .msg-bad{color:rgba(255,79,109,.95)}
+    .muted{color:var(--muted)}
+    .footer{margin-top:14px; text-align:center}
+
+    .row-actions{display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap}
+    .small{font-size:12px}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">LEP</div>
+        <div class="titles">
+          <h1>Painel Admin</h1>
+          <p>Controle de empresas (ativar/desativar) — Supabase</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <div id="sessionInfo" class="session-info hidden"></div>
+        <button id="btnLogout" class="btn btn-ghost hidden">Sair</button>
+      </div>
+    </header>
+
+    <!-- LOGIN -->
+    <section id="loginCard" class="card">
+      <h2>Entrar</h2>
+      <p class="muted">Faça login com o usuário que está em <code>public.admin_users</code>.</p>
+
+      <form id="loginForm" class="form">
+        <label>
+          <span>Email</span>
+          <input id="email" type="email" autocomplete="email" placeholder="seuemail@dominio.com" required />
+        </label>
+
+        <label>
+          <span>Senha</span>
+          <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </label>
+
+        <button class="btn btn-primary" type="submit">Entrar</button>
+        <div id="loginMsg" class="msg"></div>
+      </form>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dash" class="hidden">
+      <div class="card">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <h2 style="margin:0;">Empresas</h2>
+            <span id="countBadge" class="badge">0</span>
+          </div>
+
+          <div class="toolbar-right">
+            <input id="search" class="input" type="search" placeholder="Buscar por nome ou ID..." />
+            <select id="statusFilter" class="select">
+              <option value="all">Todas</option>
+              <option value="active">Ativas</option>
+              <option value="inactive">Inativas</option>
+            </select>
+            <button id="btnReload" class="btn btn-secondary">Atualizar</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Atualizado</th>
+                <th style="text-align:right;">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="companiesTbody"></tbody>
+          </table>
+        </div>
+
+        <div id="dashMsg" class="msg"></div>
+      </div>
+
+      <footer class="footer">
+        <span class="muted">Painel Admin — Hospede este arquivo no GitHub Pages</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- Supabase JS via CDN + App JS (tudo no mesmo arquivo) -->
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    // CONFIG (já preenchido com seu projeto)
+    const SUPABASE_URL = "https://nsmvnfhdohpvmtoimsub.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_tn76OaKxjctgngA6jj9NSw_KXfWqt-f";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // UI refs
+    const loginCard = document.getElementById("loginCard");
+    const dash = document.getElementById("dash");
+
+    const loginForm = document.getElementById("loginForm");
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+    const loginMsg = document.getElementById("loginMsg");
+
+    const sessionInfo = document.getElementById("sessionInfo");
+    const btnLogout = document.getElementById("btnLogout");
+
+    const companiesTbody = document.getElementById("companiesTbody");
+    const dashMsg = document.getElementById("dashMsg");
+    const countBadge = document.getElementById("countBadge");
+
+    const searchEl = document.getElementById("search");
+    const statusFilterEl = document.getElementById("statusFilter");
+    const btnReload = document.getElementById("btnReload");
+
+    // state
+    let allCompanies = [];
+    let isAdmin = false;
+
+    function setMsg(el, text = "", type = "") {
+      el.textContent = text || "";
+      el.className = "msg" + (type ? ` msg-${type}` : "");
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return "-";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "-";
+      return d.toLocaleString("pt-BR");
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function statusPill(status) {
+      const s = (status || "").toLowerCase();
+      if (s === "active") return `<span class="pill pill-ok">active</span>`;
+      if (s === "inactive") return `<span class="pill pill-bad">inactive</span>`;
+      return `<span class="pill pill-warn">${escapeHtml(status ?? "-")}</span>`;
+    }
+
+    async function requireAdmin(userId) {
+      const { data, error } = await supabase
+        .from("admin_users")
+        .select("user_id, active")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return !!(data && data.active === true);
+    }
+
+    async function loadCompanies() {
+      setMsg(dashMsg, "Carregando empresas...", "");
+
+      const { data, error } = await supabase
+        .from("companies")
+        .select("id, name, status, updated_at, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setMsg(dashMsg, `Erro ao carregar companies: ${error.message}`, "bad");
+        return;
+      }
+
+      allCompanies = Array.isArray(data) ? data : [];
+      applyFilters();
+      setMsg(dashMsg, "", "");
+    }
+
+    function applyFilters() {
+      const q = (searchEl.value || "").trim().toLowerCase();
+      const f = statusFilterEl.value;
+
+      let rows = [...allCompanies];
+
+      if (f !== "all") {
+        rows = rows.filter((c) => (c.status || "").toLowerCase() === f);
+      }
+
+      if (q) {
+        rows = rows.filter((c) => {
+          const name = (c.name || "").toLowerCase();
+          const id = (c.id || "").toLowerCase();
+          return name.includes(q) || id.includes(q);
+        });
+      }
+
+      countBadge.textContent = String(rows.length);
+      renderTable(rows);
+    }
+
+    function renderTable(rows) {
+      if (!rows.length) {
+        companiesTbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="empty">Nenhuma empresa encontrada.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      companiesTbody.innerHTML = rows.map((c) => {
+        const id = c.id;
+        const name = escapeHtml(c.name);
+        const status = (c.status || "").toLowerCase();
+        const updated = c.updated_at || c.created_at;
+
+        const nextStatus = status === "active" ? "inactive" : "active";
+        const btnText = status === "active" ? "Desativar" : "Ativar";
+        const btnClass = status === "active" ? "btn-danger" : "btn-success";
+
+        return `
+          <tr>
+            <td>${name}</td>
+            <td class="td-mono">${escapeHtml(id)}</td>
+            <td>${statusPill(status)}</td>
+            <td class="td-mono">${escapeHtml(fmtDate(updated))}</td>
+            <td style="text-align:right;">
+              <div class="row-actions">
+                <button
+                  class="btn ${btnClass}"
+                  data-id="${escapeHtml(id)}"
+                  data-next="${escapeHtml(nextStatus)}"
+                  ${isAdmin ? "" : "disabled"}
+                  title="${isAdmin ? "" : "Você não está em admin_users"}"
+                >${btnText}</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      companiesTbody.querySelectorAll("button[data-id]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-id");
+          const next = btn.getAttribute("data-next");
+          await toggleCompanyStatus(id, next, btn);
+        });
+      });
+    }
+
+    async function toggleCompanyStatus(companyId, nextStatus, btn) {
+      try {
+        btn.disabled = true;
+        setMsg(dashMsg, "Atualizando status...", "");
+
+        const { error } = await supabase
+          .from("companies")
+          .update({ status: nextStatus })
+          .eq("id", companyId);
+
+        if (error) throw error;
+
+        allCompanies = allCompanies.map((c) =>
+          c.id === companyId
+            ? { ...c, status: nextStatus, updated_at: new Date().toISOString() }
+            : c
+        );
+
+        applyFilters();
+        setMsg(dashMsg, `Status atualizado para "${nextStatus}".`, "ok");
+      } catch (e) {
+        setMsg(dashMsg, `Erro ao atualizar: ${e.message}`, "bad");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function showLoggedIn(session) {
+      loginCard.classList.add("hidden");
+      dash.classList.remove("hidden");
+      btnLogout.classList.remove("hidden");
+      sessionInfo.classList.remove("hidden");
+
+      const user = session.user;
+      sessionInfo.textContent = `Logado: ${user.email}`;
+
+      try {
+        isAdmin = await requireAdmin(user.id);
+        if (!isAdmin) {
+          setMsg(dashMsg, "Acesso negado: este usuário não está cadastrado como admin (admin_users).", "bad");
+        } else {
+          setMsg(dashMsg, "", "");
+        }
+      } catch (e) {
+        isAdmin = false;
+        setMsg(dashMsg, `Erro ao validar admin: ${e.message}`, "bad");
+      }
+
+      await loadCompanies();
+    }
+
+    function showLoggedOut() {
+      loginCard.classList.remove("hidden");
+      dash.classList.add("hidden");
+      btnLogout.classList.add("hidden");
+      sessionInfo.classList.add("hidden");
+      allCompanies = [];
+      companiesTbody.innerHTML = "";
+      countBadge.textContent = "0";
+      setMsg(loginMsg, "", "");
+      setMsg(dashMsg, "", "");
+    }
+
+    // events
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg(loginMsg, "Entrando...", "");
+
+      const email = emailEl.value.trim();
+      const password = passEl.value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setMsg(loginMsg, error.message, "bad");
+        return;
+      }
+
+      setMsg(loginMsg, "", "");
+      await showLoggedIn(data.session);
+    });
+
+    btnLogout.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      showLoggedOut();
+    });
+
+    btnReload.addEventListener("click", async () => {
+      await loadCompanies();
+    });
+
+    let searchTimer = null;
+    searchEl.addEventListener("input", () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(applyFilters, 150);
+    });
+    statusFilterEl.addEventListener("change", applyFilters);
+
+    // boot
+    (async function init() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        await showLoggedIn(data.session);
+      } else {
+        showLoggedOut();
+      }
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session) await showLoggedIn(session);
+        else showLoggedOut();
+      });
+    })();
+  </script>
+</body>
+</html>
